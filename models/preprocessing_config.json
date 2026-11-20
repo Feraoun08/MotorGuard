@@ -1,0 +1,52 @@
+{
+    "project_name": "MotorGuard IoT",
+    "dataset_filename": "feature_time_48k_2048_load_1.csv",
+    "model_type": "RandomForestClassifier",
+    "feature_names": [
+        "max",
+        "min",
+        "mean",
+        "sd",
+        "rms",
+        "skewness",
+        "kurtosis",
+        "crest",
+        "form"
+    ],
+    "target_column": "fault",
+    "sampling_frequency_hz": 48000,
+    "window_size_samples": 2048,
+    "scaling_method": "StandardScaler inside SVM Pipeline; no scaling for Random Forest",
+    "class_labels": [
+        "Ball_007_1",
+        "Ball_014_1",
+        "Ball_021_1",
+        "IR_007_1",
+        "IR_014_1",
+        "IR_021_1",
+        "Normal_1",
+        "OR_007_6_1",
+        "OR_014_6_1",
+        "OR_021_6_1"
+    ],
+    "model_hyperparameters": {
+        "max_depth": null,
+        "max_features": "sqrt",
+        "min_samples_leaf": 2,
+        "n_estimators": 200
+    },
+    "random_seed": 42,
+    "validation_strategy": {
+        "holdout": "stratified 80/20 train/test split",
+        "cross_validation": "5-fold StratifiedKFold on training set",
+        "selection_metric": "macro F1 on training CV",
+        "test_set_used_for_tuning": false
+    },
+    "limitations": [
+        "Dataset contains no recording IDs or chronological window indices.",
+        "Random split may place correlated windows from the same recording in both train and test partitions.",
+        "Test results are an initial baseline and do not prove generalization to unseen physical recordings.",
+        "This is bearing-condition classification, not Remaining Useful Life prediction.",
+        "Dataset contains vibration statistical features only; temperature, current, and other telemetry are not included."
+    ]
+}
