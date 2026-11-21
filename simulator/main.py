@@ -1,6 +1,7 @@
 
 import logging
 import json
+from simulator.telemetry import serialize_telemetry
 
 from simulator.dataset_provider import DatasetProvider
 from simulator.factory import FactoryEngine
@@ -98,20 +99,19 @@ def main():
 
     
     # 7. Display generated readings
-    
+
 
     def display_reading(reading):
         print("\n" + "=" * 70)
-
-        print(
-            json.dumps(
-                reading,
-                indent=4,
-                ensure_ascii=False,
-            )
-        )
-
+        print("MOTORGARD - VALIDATED TELEMETRY")
         print("=" * 70)
+
+        payload = serialize_telemetry(reading)
+
+        print(payload)
+    
+
+
 
     
     # 8. Run simulation

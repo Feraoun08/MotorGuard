@@ -1,0 +1,96 @@
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MotorGuard Telemetry",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "timestamp",
+    "motor_id",
+    "motor_name",
+    "factory_id",
+    "line_id",
+    "motor_state",
+    "bearing_condition",
+    "vibration",
+    "ground_truth",
+    "sensors",
+    "simulation"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "motor_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "motor_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "factory_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "line_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "motor_state": {
+      "type": "string",
+      "enum": ["STOPPED", "RUNNING", "WARNING", "FAULT"]
+    },
+    "bearing_condition": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ground_truth": {
+      "type": "string",
+      "minLength": 1
+    },
+    "vibration": {
+      "type": "object",
+      "required": [
+        "max", "min", "mean", "sd", "rms",
+        "skewness", "kurtosis", "crest", "form"
+      ],
+      "properties": {
+        "max": {"type": "number"},
+        "min": {"type": "number"},
+        "mean": {"type": "number"},
+        "sd": {"type": "number"},
+        "rms": {"type": "number"},
+        "skewness": {"type": "number"},
+        "kurtosis": {"type": "number"},
+        "crest": {"type": "number"},
+        "form": {"type": "number"}
+      },
+      "additionalProperties": false
+    },
+    "sensors": {
+      "type": "object",
+      "required": ["temperature", "current", "rpm"],
+      "properties": {
+        "temperature": {"type": "number", "minimum": 0},
+        "current": {"type": "number", "minimum": 0},
+        "rpm": {"type": "number", "minimum": 0}
+      }
+    },
+    "simulation": {
+      "type": "object",
+      "required": ["is_simulated"],
+      "properties": {
+        "is_simulated": {"type": "boolean"},
+        "vibration_source": {"type": "string"},
+        "additional_sensor_source": {"type": "string"}
+      }
+    }
+  },
+  "additionalProperties": false
+}
