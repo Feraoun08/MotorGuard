@@ -1,64 +1,135 @@
 
-from simulator.config import SamplingMode
-from simulator.motor import MotorConfig, VirtualMotor
+import logging
+import json
+
 from simulator.dataset_provider import DatasetProvider
+from simulator.factory import FactoryEngine
+from simulator.motor import MotorConfig, VirtualMotor
+from simulator.sensors import SensorSimulator
+from simulator.config import SamplingMode
+from simulator.scenarios import apply_scenario
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+)
 
 
 def main():
-    # Load the vibration dataset once.
-    dataset_provider = DatasetProvider(random_seed=42)
+    
+    # 1. Load vibration dataset
+    
 
-    # Create a healthy motor.
+    dataset_provider = DatasetProvider(
+        random_seed=42
+    )
+
+    
+    # 2. Initialize synthetic sensor simulator
+    
+
+    sensor_simulator = SensorSimulator(
+        random_seed=42
+    )
+
+    
+    # 3. Initialize factory engine
+    
+
+    factory = FactoryEngine(
+        dataset_provider=dataset_provider,
+        sensor_simulator=sensor_simulator,
+        interval_seconds=2.0,
+    )
+
+    
+    # 4. Create motors
+    
+
     motor_1 = VirtualMotor(
         config=MotorConfig(
             motor_id="MOTOR_001",
             name="Conveyor Motor",
             bearing_condition="Normal_1",
+            factory_id="FACTORY_01",
+            line_id="LINE_01",
             sampling_mode=SamplingMode.RANDOM,
         )
     )
 
-    # Create a faulty motor.
     motor_2 = VirtualMotor(
         config=MotorConfig(
             motor_id="MOTOR_002",
             name="Pump Motor",
             bearing_condition="Ball_007_1",
+            factory_id="FACTORY_01",
+            line_id="LINE_01",
             sampling_mode=SamplingMode.RANDOM,
         )
     )
 
-    # Create a motor with sequential sampling.
     motor_3 = VirtualMotor(
         config=MotorConfig(
             motor_id="MOTOR_003",
-            name="Cooling Fan Motor",
+            name="Cooling Fan",
             bearing_condition="IR_014_1",
+            factory_id="FACTORY_01",
+            line_id="LINE_02",
             sampling_mode=SamplingMode.SEQUENTIAL,
         )
     )
 
-    motors = [motor_1, motor_2, motor_3]
+    
+    # 5. Register motors
+    
 
-    for motor in motors:
-        motor.start()
+    factory.register_motor(motor_1)
+    factory.register_motor(motor_2)
+    factory.register_motor(motor_3)
 
-        measurement = motor.generate_vibration(dataset_provider)
+    
+    # 6. Start motors
+    
 
-        print("\n" + "=" * 50)
-        print(f"Motor: {motor.name}")
-        print(f"ID: {motor.motor_id}")
-        print(f"State: {motor.state.value}")
-        print(f"Configured condition: {motor.bearing_condition}")
-        print(f"Ground truth: {measurement.ground_truth}")
-        print("Features:")
+    factory.start_motor("MOTOR_001")
+    factory.start_motor("MOTOR_002")
+    factory.start_motor("MOTOR_003")
 
-        for feature, value in measurement.features.items():
-            print(f"  {feature}: {value}")
+    
+    # 7. Display generated readings
+    
 
-        print("Motor metadata:")
-        print(motor_info := motor.to_dict())
-        print("=" * 50)
+    def display_reading(reading):
+        print("\n" + "=" * 70)
+
+        print(
+            json.dumps(
+                reading,
+                indent=4,
+                ensure_ascii=False,
+            )
+        )
+
+        print("=" * 70)
+
+    
+    # 8. Run simulation
+    
+
+    try:
+        factory.run(
+            max_cycles=5,
+            on_reading=display_reading,
+        )
+
+    except KeyboardInterrupt:
+        print("\nShutdown requested.")
+
+    finally:
+        factory.stop()
+
+    print("\nFactory simulation finished.")
 
 
 if __name__ == "__main__":
