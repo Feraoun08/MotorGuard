@@ -255,10 +255,132 @@ class TelemetryInbox(Base):
         nullable=True,
     )
 
+    next_attempt_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=utc_now,
+        nullable=False,
+        index=True,
+    )
+
+    processing_started_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    processed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
     __table_args__ = (
         Index(
             "ix_inbox_status_received",
             "status",
             "received_at",
+        ),
+        Index(
+            "ix_inbox_pending_retry",
+            "status",
+            "next_attempt_at",
+        ),
+    )
+    __tablename__ = "telemetry_inbox"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+    primary_key=True,
+    default=uuid.uuid4,
+    nullable=False,
+)
+
+    event_key: Mapped[str] = mapped_column(
+        String(64),
+        unique=True,
+        nullable=False,
+    )
+
+    topic: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+
+    factory_id: Mapped[str] = mapped_column(
+        String(100),
+    nullable=False,
+   index=True,
+   )
+
+    motor_id: Mapped[str] = mapped_column(
+        String(100),
+    nullable=False,
+   index=True,
+)
+
+    line_id: Mapped[str] = mapped_column(
+        String(100),
+    nullable=False,
+)
+
+    payload: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=False,
+)
+
+    received_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+       default=utc_now,
+    nullable=False,
+)
+
+    status: Mapped[str] = mapped_column(
+        String(20),
+        default="pending",
+       nullable=False,
+   index=True,
+)
+
+    attempts: Mapped[int] = mapped_column(
+        Integer,
+       default=0,
+   nullable=False,
+)
+
+    last_error: Mapped[str | None] = mapped_column(
+        Text,
+   nullable=True,
+)
+
+    persisted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+   nullable=True,
+)
+
+    next_attempt_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=utc_now,
+        nullable=False,
+        index=True,
+    )
+
+    processing_started_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    processed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    __table_args__ = (
+        Index(
+            "ix_inbox_status_received",
+            "status",
+            "received_at",
+        ),
+        Index(
+            "ix_inbox_pending_retry",
+            "status",
+            "next_attempt_at",
         ),
     )

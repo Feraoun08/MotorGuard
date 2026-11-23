@@ -5,7 +5,6 @@ import threading
 from backend.config import BackendConfig
 from backend.logging_config import configure_logging
 
-from backend.database.models import Base
 from backend.database.postgres import (
     create_postgres_engine,
     create_session_factory,
@@ -27,16 +26,10 @@ def main():
 
     config = BackendConfig.from_env()
 
-    logger.info("Starting MotorGuard Backend Phase 4")
+    logger.info("Starting MotorGuard Phase 4 Backend")
 
-    # PostgreSQL
     engine = create_postgres_engine(config)
     session_factory = create_session_factory(engine)
-
-    # Initial development bootstrap.
-    # In a later schema-management step, this is replaced
-    # by Alembic migrations.
-    Base.metadata.create_all(engine)
 
     repository = TelemetryRepository(
         session_factory,
@@ -44,9 +37,8 @@ def main():
 
     repository.health_check()
 
-    logger.info("PostgreSQL connection successful")
+    logger.info("PostgreSQL health check passed")
 
-    # InfluxDB
     influx_store = InfluxTelemetryStore(
         url=config.influx_url,
         token=config.influx_token,
@@ -59,76 +51,79 @@ def main():
             "InfluxDB health check failed"
         )
 
-    logger.info("InfluxDB connection successful")
+    logger.info("InfluxDB health check passed")
 
-    # Durable inbox worker
+    ingestion_service = TelemetryIngestionService(
+        repository,
+    )
+
+    consumer = BackendMQTTConsumer(
+        config=config,
+        ingestion_service=ingestion_service,
+    )
+
     worker = InboxWorker(
         repository=repository,
         influx_store=influx_store,
         poll_interval=config.worker_poll_interval,
         batch_size=config.worker_batch_size,
         max_attempts=config.worker_max_attempts,
+        retry_base_seconds=config.worker_retry_base_seconds,
+        retry_max_seconds=config.worker_retry_max_seconds,
+        processing_lease_seconds=config.worker_processing_lease_seconds,
     )
 
-    # MQTT ingestion service
-    ingestion_service = TelemetryIngestionService(
-        repository,
-    )
+    shutdown_event = threading.Event()
 
-    # Independent MQTT consumer
-    consumer = BackendMQTTConsumer(
-        config=config,
-        ingestion_service=ingestion_service,
-    )
-
-    stop_event = threading.Event()
-
-    def shutdown_handler(signum, frame):
-        logger.info("Shutdown signal received")
-        stop_event.set()
+    def handle_shutdown(signum, frame):
+        logger.info(
+            "Shutdown signal received: %s",
+            signum,
+        )
+        shutdown_event.set()
 
     signal.signal(
         signal.SIGINT,
-        shutdown_handler,
+        handle_shutdown,
     )
 
     if hasattr(signal, "SIGTERM"):
         signal.signal(
             signal.SIGTERM,
-            shutdown_handler,
+            handle_shutdown,
         )
 
     try:
 
         worker.start()
 
-        connected = consumer.connect()
-
-        if not connected:
+        if not consumer.connect():
             raise RuntimeError(
-                "Backend MQTT consumer could not connect"
+                "Unable to connect backend MQTT consumer"
             )
 
         logger.info(
             "MotorGuard Phase 4 backend is running"
         )
 
-        while not stop_event.wait(timeout=1):
+        while not shutdown_event.wait(1):
 
             if not consumer.is_connected:
                 logger.warning(
-                    "Backend MQTT connection is currently down"
+                    "MQTT connection is disconnected; "
+                    "automatic reconnect is active"
                 )
 
     except KeyboardInterrupt:
-        logger.info("Keyboard interruption")
+        logger.info("Keyboard interruption received")
 
     finally:
 
-        logger.info("Backend shutdown sequence")
+        logger.info("Beginning backend shutdown")
 
         consumer.disconnect()
         worker.stop()
+
         influx_store.close()
         engine.dispose()
 
@@ -138,7 +133,7 @@ def main():
         )
 
         logger.info(
-            "MotorGuard backend stopped cleanly"
+            "MotorGuard Phase 4 backend shutdown completed"
         )
 
 

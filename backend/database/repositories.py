@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select, text
 from sqlalchemy.dialects.postgresql import insert
@@ -26,12 +26,12 @@ class TelemetryRepository:
         payload: dict,
     ) -> bool:
 
+        factory_id = payload["factory_id"]
+        line_id = payload["line_id"]
+        motor_id = payload["motor_id"]
+
         with self.session_factory() as session:
             with session.begin():
-
-                factory_id = payload["factory_id"]
-                line_id = payload["line_id"]
-                motor_id = payload["motor_id"]
 
                 session.execute(
                     insert(Factory)
@@ -80,6 +80,7 @@ class TelemetryRepository:
                         payload=payload,
                         status="pending",
                         attempts=0,
+                        next_attempt_at=datetime.now(timezone.utc),
                     )
                     .on_conflict_do_nothing(
                         index_elements=["event_key"]
@@ -93,54 +94,80 @@ class TelemetryRepository:
 
                 if inserted_id is None:
                     logger.info(
-                        "Duplicate telemetry ignored | event=%s",
+                        "Duplicate event ignored | event=%s",
                         event_key,
                     )
                     return False
 
-                logger.info(
-                    "Telemetry registered | factory=%s | "
-                    "motor=%s | event=%s",
-                    factory_id,
-                    motor_id,
-                    event_key,
-                )
-
                 return True
 
-    def get_pending_batch(
+    def claim_pending_batch(
         self,
         batch_size: int,
+        lease_seconds: int,
     ) -> list[dict]:
 
+        now = datetime.now(timezone.utc)
+        expired_before = now - timedelta(seconds=lease_seconds)
+
         with self.session_factory() as session:
+            with session.begin():
 
-            statement = (
-                select(TelemetryInbox)
-                .where(
-                    TelemetryInbox.status == "pending"
+                # Recover events whose worker died while
+                # processing them.
+                session.execute(
+                    text(
+                        """
+                        UPDATE telemetry_inbox
+                        SET status = 'pending',
+                            processing_started_at = NULL
+                        WHERE status = 'processing'
+                          AND processing_started_at < :expired_before
+                        """
+                    ),
+                    {
+                        "expired_before": expired_before,
+                    },
                 )
-                .order_by(
-                    TelemetryInbox.received_at
+
+                statement = (
+                    select(TelemetryInbox)
+                    .where(
+                        TelemetryInbox.status == "pending",
+                        TelemetryInbox.next_attempt_at <= now,
+                    )
+                    .order_by(
+                        TelemetryInbox.received_at,
+                    )
+                    .limit(batch_size)
+                    .with_for_update(skip_locked=True)
                 )
-                .limit(batch_size)
-            )
 
-            rows = session.execute(
-                statement
-            ).scalars().all()
+                rows = session.execute(
+                    statement
+                ).scalars().all()
 
-            return [
-                {
-                    "id": row.id,
-                    "event_key": row.event_key,
-                    "payload": row.payload,
-                    "attempts": row.attempts,
-                }
-                for row in rows
-            ]
+                claimed = []
+
+                for row in rows:
+
+                    row.status = "processing"
+                    row.processing_started_at = now
+
+                    claimed.append(
+                        {
+                            "id": row.id,
+                            "event_key": row.event_key,
+                            "payload": row.payload,
+                            "attempts": row.attempts,
+                        }
+                    )
+
+                return claimed
 
     def mark_processed(self, inbox_id):
+
+        now = datetime.now(timezone.utc)
 
         with self.session_factory() as session:
             with session.begin():
@@ -154,11 +181,9 @@ class TelemetryRepository:
                     return
 
                 row.status = "processed"
-
-                row.persisted_at = datetime.now(
-                    timezone.utc
-                )
-
+                row.persisted_at = now
+                row.processed_at = now
+                row.processing_started_at = None
                 row.last_error = None
 
     def mark_failed(
@@ -166,7 +191,10 @@ class TelemetryRepository:
         inbox_id,
         error: str,
         max_attempts: int,
+        retry_delay_seconds: int,
     ):
+
+        now = datetime.now(timezone.utc)
 
         with self.session_factory() as session:
             with session.begin():
@@ -181,11 +209,27 @@ class TelemetryRepository:
 
                 row.attempts += 1
                 row.last_error = error[:5000]
+                row.processing_started_at = None
 
                 if row.attempts >= max_attempts:
+
                     row.status = "failed"
+
+                    logger.error(
+                        "Event reached maximum retries | "
+                        "event=%s | attempts=%s",
+                        row.event_key,
+                        row.attempts,
+                    )
+
                 else:
+
                     row.status = "pending"
+                    row.next_attempt_at = (
+                        now + timedelta(
+                            seconds=retry_delay_seconds
+                        )
+                    )
 
     def health_check(self) -> bool:
 
