@@ -1,0 +1,59 @@
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: motorguard_postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-motorguard}
+      POSTGRES_USER: ${POSTGRES_USER:-motorguard}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-motorguard}
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER:-motorguard} -d ${POSTGRES_DB:-motorguard}
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: motorguard_influxdb
+    restart: unless-stopped
+
+    ports:
+      - "8086:8086"
+
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUX_USERNAME:-admin}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUX_PASSWORD:-motorguard_influx_password}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUX_ORG:-motorguard}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUX_BUCKET:-motor_telemetry}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUX_TOKEN:-motorguard_dev_token_change_me}
+
+    healthcheck:
+      test:
+        - CMD
+        - influx
+        - ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+volumes:
+  postgres_data:
+  influxdb_data:
