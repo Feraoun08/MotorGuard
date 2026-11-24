@@ -11,7 +11,10 @@ from backend.database.postgres import (
     create_postgres_engine,
     create_session_factory,
 )
-from backend.api.routers import health_router
+from backend.api.routers import (
+    health_router,
+    factories_router,
+)
 
 
 logger = logging.getLogger("motorguard.api")
@@ -97,6 +100,7 @@ if cors_origins:
 
 # API routers
 app.include_router(health_router)
+app.include_router(factories_router)
 
 
 @app.get("/", tags=["General"])
