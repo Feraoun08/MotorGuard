@@ -5,9 +5,16 @@ from backend.api.schemas.factory import (
     MotorListResponse,
 )
 
+from backend.api.schemas.telemetry import (
+    TelemetryResponse,
+    TelemetryHistoryResponse,
+)
+
 __all__ = [
     "FactoryResponse",
     "ProductionLineResponse",
     "MotorResponse",
     "MotorListResponse",
+    "TelemetryResponse",
+    "TelemetryHistoryResponse",
 ]

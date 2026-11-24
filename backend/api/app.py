@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from backend.database.influx import InfluxTelemetryStore
 
 from backend.config import BackendConfig
 from backend.database.postgres import (
@@ -14,7 +15,9 @@ from backend.database.postgres import (
 from backend.api.routers import (
     health_router,
     factories_router,
+    telemetry_router,
 )
+from backend.api.routers.maintenance import router as maintenance_router
 
 
 logger = logging.getLogger("motorguard.api")
@@ -39,12 +42,9 @@ def get_cors_origins() -> list[str]:
     return origins
 
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Manage API resources during application startup and shutdown.
-    """
-
     logger.info("Starting MotorGuard API")
 
     config = BackendConfig.from_env()
@@ -52,9 +52,17 @@ async def lifespan(app: FastAPI):
     engine = create_postgres_engine(config)
     session_factory = create_session_factory(engine)
 
+    influx_store = InfluxTelemetryStore(
+    config.influx_url,
+    config.influx_token,
+    config.influx_org,
+    config.influx_bucket,
+)
+
     app.state.config = config
     app.state.engine = engine
     app.state.session_factory = session_factory
+    app.state.influx_store = influx_store
 
     try:
         yield
@@ -62,9 +70,11 @@ async def lifespan(app: FastAPI):
     finally:
         logger.info("Shutting down MotorGuard API")
 
+        influx_store.close()
         engine.dispose()
 
         logger.info("MotorGuard API shutdown completed")
+
 
 
 app = FastAPI(
@@ -101,6 +111,8 @@ if cors_origins:
 # API routers
 app.include_router(health_router)
 app.include_router(factories_router)
+app.include_router(telemetry_router)
+app.include_router(maintenance_router)
 
 
 @app.get("/", tags=["General"])
