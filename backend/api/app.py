@@ -2,6 +2,10 @@
 import logging
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
+
+from backend.ml.model_loader import ModelLoader
+from backend.api.routers.diagnosis import router as diagnosis_router
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -64,6 +68,17 @@ async def lifespan(app: FastAPI):
     app.state.session_factory = session_factory
     app.state.influx_store = influx_store
 
+
+    project_root = Path(__file__).resolve().parents[2]
+
+    model_path = project_root / "models" / "model.pkl"
+
+    model_loader = ModelLoader(
+    model_path=model_path,
+)
+    model_loader.load()
+    app.state.model_loader = model_loader
+
     try:
         yield
 
@@ -113,6 +128,7 @@ app.include_router(health_router)
 app.include_router(factories_router)
 app.include_router(telemetry_router)
 app.include_router(maintenance_router)
+app.include_router(diagnosis_router)
 
 
 @app.get("/", tags=["General"])

@@ -9,7 +9,7 @@ from backend.api.schemas.telemetry import (
     TelemetryResponse,
     TelemetryHistoryResponse,
 )
-
+from backend.api.schemas.diagnosis import DiagnosisResponse
 __all__ = [
     "FactoryResponse",
     "ProductionLineResponse",
@@ -17,4 +17,5 @@ __all__ = [
     "MotorListResponse",
     "TelemetryResponse",
     "TelemetryHistoryResponse",
+    "DiagnosisResponse",
 ]

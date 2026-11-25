@@ -22,3 +22,7 @@ influxdb-client>=1.45.0,<2.0.0
 # REST API
 fastapi>=0.115.0,<1.0.0
 uvicorn[standard]>=0.30.6,<1.0.0
+
+
+joblib
+scikit-learn==1.9.1
