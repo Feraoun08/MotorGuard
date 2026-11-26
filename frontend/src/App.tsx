@@ -1,4 +1,3 @@
-
 import { Routes, Route } from "react-router-dom";
 
 import AppLayout from "./components/layout/AppLayout";
@@ -8,6 +7,7 @@ import FactoriesPage from "./pages/FactoriesPage";
 import FactoryDetailsPage from "./pages/FactoryDetailsPage";
 import ProductionLinePage from "./pages/ProductionLinePage";
 import MotorsPage from "./pages/MotorsPage";
+import MotorMonitoringPage from "./pages/MotorMonitoringPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 export default function App() {
@@ -31,7 +31,7 @@ export default function App() {
 
         <Route
           path="/factories/:factoryId/motors/:motorId"
-          element={<NotFoundPage />}
+          element={<MotorMonitoringPage />}
         />
 
         <Route path="*" element={<NotFoundPage />} />

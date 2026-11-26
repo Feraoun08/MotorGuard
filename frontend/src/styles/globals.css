@@ -1009,3 +1009,684 @@ a {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* =========================================================
+   MOTOR MONITORING
+========================================================= */
+
+.motor-monitoring-page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.monitoring-back {
+  margin-bottom: -12px;
+}
+
+.monitoring-back a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.monitoring-back a:hover {
+  color: var(--primary);
+}
+
+/* Identity */
+
+.motor-monitor-identity {
+  padding: 22px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.motor-monitor-identity-main {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.motor-monitor-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 15px;
+  background: rgba(46, 139, 87, 0.12);
+  color: #2e8b57;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.motor-monitor-name {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.motor-monitor-id {
+  margin-top: 5px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.motor-monitor-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.monitor-badge {
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: var(--surface-secondary);
+  border: 1px solid var(--border-color);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.monitor-badge.simulated {
+  background: #fff7e8;
+  border-color: #f3d6a0;
+  color: #946316;
+}
+
+.motor-monitor-last-update {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+/* Sections */
+
+.monitor-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.monitor-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.monitor-section-heading h2 {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.monitor-section-heading p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Sensor cards */
+
+.monitor-sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.monitor-sensor-card {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  min-width: 0;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.monitor-sensor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.monitor-sensor-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.monitor-sensor-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(46, 139, 87, 0.1);
+  color: #2e8b57;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.monitor-sensor-title {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.monitor-sensor-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 18px;
+  letter-spacing: -0.7px;
+  overflow-wrap: anywhere;
+}
+
+.monitor-sensor-value span {
+  margin-left: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: normal;
+}
+
+.monitor-sensor-description {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 8px 0 0;
+}
+
+/* Vibration grid */
+
+.vibration-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.vibration-feature-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 17px;
+}
+
+.vibration-feature-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.vibration-feature-value {
+  font-size: 22px;
+  color: var(--text-primary);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.vibration-feature-description {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Charts */
+
+.monitor-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.telemetry-chart-card {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  min-width: 0;
+}
+
+.telemetry-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.telemetry-chart-header h3 {
+  font-size: 15px;
+  color: var(--text-primary);
+  margin: 0;
+  font-weight: 700;
+}
+
+.chart-unit {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--surface-secondary);
+  padding: 5px 8px;
+  border-radius: 6px;
+}
+
+.telemetry-chart-container {
+  width: 100%;
+  height: 280px;
+}
+
+.chart-empty {
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Range selector */
+
+.range-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  background: var(--surface-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.range-selector button {
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 7px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.range-selector button.active {
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.range-selector button:hover {
+  color: var(--primary);
+}
+
+/* Diagnosis */
+
+.diagnosis-card {
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.diagnosis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.diagnosis-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.diagnosis-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(46, 139, 87, 0.12);
+  color: #2e8b57;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.diagnosis-heading h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.diagnosis-heading p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.icon-button {
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  color: var(--text-secondary);
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  color: var(--primary);
+  background: var(--surface-secondary);
+}
+
+.diagnosis-result {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px;
+  border-radius: 14px;
+  background: rgba(46, 139, 87, 0.07);
+  border: 1px solid rgba(46, 139, 87, 0.17);
+}
+
+.diagnosis-result-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.diagnosis-result strong {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--primary);
+  overflow-wrap: anywhere;
+}
+
+.diagnosis-confidence {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.diagnosis-confidence-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.diagnosis-confidence-header span {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.diagnosis-confidence-header strong {
+  font-size: 17px;
+  color: var(--text-primary);
+}
+
+.confidence-track {
+  height: 9px;
+  background: var(--surface-secondary);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.confidence-fill {
+  height: 100%;
+  background: #2e8b57;
+  border-radius: 20px;
+  transition: width 0.4s ease;
+}
+
+.diagnosis-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.diagnosis-metadata > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.diagnosis-metadata span {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.diagnosis-metadata strong {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.diagnosis-disclaimer {
+  padding: 12px;
+  background: var(--surface-secondary);
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.diagnosis-placeholder {
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.diagnosis-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #b45309;
+  font-size: 13px;
+  padding: 14px;
+  background: #fff7ed;
+  border-radius: 10px;
+}
+
+/* Refresh */
+
+.monitor-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.monitor-refresh-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 11px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.monitor-refresh-button:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.monitor-refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spin {
+  animation: monitoring-spin 1s linear infinite;
+}
+
+@keyframes monitoring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+
+@media (max-width: 1100px) {
+  .monitor-sensor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vibration-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 850px) {
+  .monitor-charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .range-selector {
+    width: fit-content;
+  }
+}
+
+@media (max-width: 600px) {
+  .monitor-sensor-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .monitor-sensor-card {
+    padding: 15px;
+  }
+
+  .monitor-sensor-value {
+    font-size: 23px;
+  }
+
+  .vibration-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .vibration-feature-card {
+    padding: 14px;
+  }
+
+  .monitor-section-heading h2 {
+    font-size: 17px;
+  }
+
+  .motor-monitor-identity {
+    padding: 17px;
+  }
+
+  .diagnosis-card {
+    padding: 17px;
+  }
+
+  .range-selector button {
+    padding: 8px 10px;
+  }
+
+  .telemetry-chart-card {
+    padding: 15px;
+  }
+}
+
+/* =========================================================
+   ERROR STATE
+========================================================= */
+
+.error-state {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+}
+
+.error-state-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #dc5555;
+  background: rgba(220, 85, 85, 0.1);
+  border-radius: 12px;
+}
+
+.error-state-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.error-state-content h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.error-state-content p {
+  margin: 8px 0 16px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.error-state-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  border-radius: 9px;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.error-state-retry:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+@media (max-width: 600px) {
+  .error-state {
+    padding: 18px;
+  }
+}

@@ -1,26 +1,36 @@
 import { AlertCircle, RefreshCw } from "lucide-react";
 
 interface ErrorStateProps {
+  title?: string;
   message: string;
   onRetry?: () => void;
 }
 
 export default function ErrorState({
+  title = "Something went wrong",
   message,
   onRetry,
 }: ErrorStateProps) {
   return (
-    <div className="state-container error-state">
-      <AlertCircle size={28} />
+    <div className="error-state">
+      <div className="error-state-icon">
+        <AlertCircle size={24} />
+      </div>
 
-      <p>{message}</p>
+      <div className="error-state-content">
+        <h3>{title}</h3>
+        <p>{message}</p>
 
-      {onRetry && (
-        <button className="button button-secondary" onClick={onRetry}>
-          <RefreshCw size={15} />
-          Retry
-        </button>
-      )}
+        {onRetry && (
+          <button
+            className="error-state-retry"
+            onClick={onRetry}
+          >
+            <RefreshCw size={15} />
+            Try again
+          </button>
+        )}
+      </div>
     </div>
   );
 }
