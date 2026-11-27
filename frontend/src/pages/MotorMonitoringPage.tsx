@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Activity,
@@ -14,6 +15,7 @@ import { Link, useParams } from "react-router-dom";
 import PageHeader from "../components/layout/PageHeader";
 import LoadingState from "../components/common/LoadingState";
 import ErrorState from "../components/common/ErrorState";
+import Breadcrumbs from "../components/common/Breadcrumbs";
 
 import SensorCard from "../components/monitoring/SensorCard";
 import VibrationGrid from "../components/monitoring/VibrationGrid";
@@ -39,6 +41,9 @@ export default function MotorMonitoringPage() {
 
   const [range, setRange] = useState<TelemetryRange>("1h");
 
+  const safeFactoryId = factoryId ?? "";
+  const safeMotorId = motorId ?? "";
+
   const {
     motor,
     latest,
@@ -54,8 +59,8 @@ export default function MotorMonitoringPage() {
     refresh,
     refreshDiagnosis,
   } = useMotorMonitoring(
-    factoryId ?? "",
-    motorId ?? "",
+    safeFactoryId,
+    safeMotorId,
     range
   );
 
@@ -97,8 +102,24 @@ export default function MotorMonitoringPage() {
 
   return (
     <div className="motor-monitoring-page">
+      <Breadcrumbs
+        items={[
+          {
+            label: "Factories",
+            path: "/factories",
+          },
+          {
+            label: factoryId,
+            path: `/factories/${encodeURIComponent(factoryId)}`,
+          },
+          {
+            label: motor?.name ?? motorId,
+          },
+        ]}
+      />
+
       <div className="monitoring-back">
-        <Link to={`/factories/${factoryId}`}>
+        <Link to={`/factories/${encodeURIComponent(factoryId)}`}>
           <ArrowLeft size={16} />
           Back to factory
         </Link>
@@ -109,6 +130,12 @@ export default function MotorMonitoringPage() {
         title={motor?.name ?? motorId}
         description={`Live monitoring for motor ${motorId}`}
       />
+
+      {error && (
+        <div className="monitoring-warning" role="status">
+          {error}
+        </div>
+      )}
 
       {/* Motor identity and status */}
       <section className="motor-monitor-identity">
@@ -126,6 +153,14 @@ export default function MotorMonitoringPage() {
               {motorId}
             </div>
           </div>
+        </div>
+
+        <div className="monitor-motor-context">
+          <span>Factory: {factoryId}</span>
+
+          {motor?.line_id && (
+            <span>Line: {motor.line_id}</span>
+          )}
         </div>
 
         <div className="motor-monitor-badges">
@@ -207,7 +242,9 @@ export default function MotorMonitoringPage() {
         <div className="monitor-section-heading">
           <div>
             <h2>Vibration analysis</h2>
-            <p>Statistical features extracted from the vibration signal</p>
+            <p>
+              Statistical features extracted from the vibration signal
+            </p>
           </div>
         </div>
 
@@ -222,11 +259,17 @@ export default function MotorMonitoringPage() {
             <p>Explore sensor evolution over time</p>
           </div>
 
-          <div className="range-selector">
+          <div
+            className="range-selector"
+            role="group"
+            aria-label="Historical telemetry time range"
+          >
             {ranges.map((item) => (
               <button
                 key={item.value}
+                type="button"
                 className={range === item.value ? "active" : ""}
+                aria-pressed={range === item.value}
                 onClick={() => setRange(item.value)}
               >
                 {item.label}
@@ -285,10 +328,11 @@ export default function MotorMonitoringPage() {
       {/* Footer controls */}
       <div className="monitor-footer-actions">
         <button
+          type="button"
           className="monitor-refresh-button"
           onClick={() => {
-            refresh();
-            refreshDiagnosis();
+            void refresh();
+            void refreshDiagnosis();
           }}
           disabled={refreshing}
         >
@@ -296,7 +340,7 @@ export default function MotorMonitoringPage() {
             size={16}
             className={refreshing ? "spin" : ""}
           />
-          Refresh monitoring
+          {refreshing ? "Refreshing..." : "Refresh monitoring"}
         </button>
       </div>
     </div>

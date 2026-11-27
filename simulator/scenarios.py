@@ -124,9 +124,6 @@ def list_scenarios() -> list[FaultScenario]:
 def apply_scenario(motor, scenario_name: str):
     """
     Change a motor's configured bearing scenario.
-
-    This is a controlled simulation change, not a physical
-    degradation model.
     """
 
     scenario = get_scenario(scenario_name)

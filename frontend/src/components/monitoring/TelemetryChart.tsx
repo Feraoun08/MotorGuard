@@ -1,3 +1,4 @@
+
 import {
   ResponsiveContainer,
   LineChart,
@@ -9,6 +10,7 @@ import {
 } from "recharts";
 
 import type { Telemetry } from "../../types/telemetry";
+import ChartEmptyState from "./ChartEmptyState";
 
 interface TelemetryChartProps {
   data: Telemetry[];
@@ -19,7 +21,6 @@ interface TelemetryChartProps {
 
 interface ChartPoint {
   timestamp: string;
-  label: string;
   value: number;
 }
 
@@ -27,10 +28,9 @@ function getChartData(
   telemetry: Telemetry[],
   dataKey: TelemetryChartProps["dataKey"]
 ): ChartPoint[] {
-  return telemetry
-    .filter((item) => item.timestamp)
+  const points = telemetry
     .map((item) => {
-      let value: number | null = null;
+      let value: number | null | undefined;
 
       switch (dataKey) {
         case "temperature":
@@ -50,22 +50,44 @@ function getChartData(
           break;
       }
 
+      const timestamp = item.timestamp;
+
+      if (
+        !timestamp ||
+        value === null ||
+        value === undefined ||
+        !Number.isFinite(value) ||
+        Number.isNaN(new Date(timestamp).getTime())
+      ) {
+        return null;
+      }
+
       return {
-        timestamp: item.timestamp,
-        label: new Date(item.timestamp).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        timestamp,
         value,
       };
     })
-    .filter(
-      (point): point is ChartPoint =>
-        point.value !== null &&
-        point.value !== undefined &&
-        Number.isFinite(point.value)
-    )
-    .reverse();
+    .filter((point): point is ChartPoint => point !== null);
+
+  // Chronological order.
+  return points.sort(
+    (a, b) =>
+      new Date(a.timestamp).getTime() -
+      new Date(b.timestamp).getTime()
+  );
+}
+
+function formatAxisTime(timestamp: string) {
+  const date = new Date(timestamp);
+
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatTooltipTime(timestamp: string) {
+  return new Date(timestamp).toLocaleString();
 }
 
 export default function TelemetryChart({
@@ -80,19 +102,17 @@ export default function TelemetryChart({
     <div className="telemetry-chart-card">
       <div className="telemetry-chart-header">
         <h3>{title}</h3>
-        <span className="chart-unit">{unit}</span>
+        <span className="chart-unit">{unit || "No unit"}</span>
       </div>
 
       {chartData.length === 0 ? (
-        <div className="chart-empty">
-          No historical data available for this range.
-        </div>
+        <ChartEmptyState message="No historical data available for this range." />
       ) : (
         <div className="telemetry-chart-container">
           <ResponsiveContainer width="100%" height={280}>
             <LineChart
               data={chartData}
-              margin={{ top: 10, right: 15, left: 0, bottom: 5 }}
+              margin={{ top: 12, right: 15, left: 0, bottom: 5 }}
             >
               <CartesianGrid
                 strokeDasharray="3 3"
@@ -100,7 +120,9 @@ export default function TelemetryChart({
               />
 
               <XAxis
-                dataKey="label"
+                dataKey="timestamp"
+                tickFormatter={formatAxisTime}
+                minTickGap={35}
                 tick={{ fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
@@ -111,20 +133,37 @@ export default function TelemetryChart({
                 tickLine={false}
                 axisLine={false}
                 width={55}
+                domain={["auto", "auto"]}
               />
 
               <Tooltip
-                formatter={(value) => [`${value} ${unit}`, title]}
-                labelFormatter={(label) => `Time: ${label}`}
+                contentStyle={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "10px",
+                  fontSize: "12px",
+                }}
+                labelFormatter={(label) =>
+                  `Time: ${formatTooltipTime(String(label))}`
+                }
+                formatter={(value) => [
+                  `${Number(value).toLocaleString(undefined, {
+                    maximumFractionDigits: 4,
+                  })}${unit ? ` ${unit}` : ""}`,
+                  title,
+                ]}
               />
 
               <Line
                 type="monotone"
                 dataKey="value"
+                name={title}
                 stroke="#2E8B57"
                 strokeWidth={2.5}
                 dot={false}
                 activeDot={{ r: 5 }}
+                connectNulls={false}
+                isAnimationActive={false}
               />
             </LineChart>
           </ResponsiveContainer>
