@@ -1,4 +1,14 @@
 services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: motorguard_mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./config/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
 
   postgres:
     image: postgres:16
@@ -57,3 +67,6 @@ services:
 volumes:
   postgres_data:
   influxdb_data:
+  mosquitto_data:
+  mosquitto_log:
+

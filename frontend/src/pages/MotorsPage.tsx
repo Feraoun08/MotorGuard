@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, Boxes } from "lucide-react";
 
@@ -6,6 +7,7 @@ import PageHeader from "../components/layout/PageHeader";
 import LoadingState from "../components/common/LoadingState";
 import ErrorState from "../components/common/ErrorState";
 import EmptyState from "../components/common/EmptyState";
+import FilterToolbar from "../components/common/FilterToolbar";
 
 import { motorService } from "../services/motorService";
 import type { Motor } from "../types/motor";
@@ -13,10 +15,13 @@ import type { Motor } from "../types/motor";
 export default function MotorsPage() {
   const [motors, setMotors] = useState<Motor[]>([]);
   const [total, setTotal] = useState(0);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadMotors() {
+  const [search, setSearch] = useState("");
+
+  const loadMotors = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -28,16 +33,36 @@ export default function MotorsPage() {
 
       setMotors(response.items);
       setTotal(response.total);
-    } catch {
+    } catch (error) {
+      console.error("Motor directory loading failed:", error);
       setError("Unable to load motor assets.");
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     void loadMotors();
-  }, []);
+  }, [loadMotors]);
+
+  const filteredMotors = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    if (!query) return motors;
+
+    return motors.filter((motor) => {
+      const searchableFields = [
+        motor.name,
+        motor.id,
+        motor.factory_id,
+        motor.line_id,
+      ];
+
+      return searchableFields.some((field) =>
+        String(field ?? "").toLowerCase().includes(query)
+      );
+    });
+  }, [motors, search]);
 
   if (loading) {
     return <LoadingState message="Loading motor assets..." />;
@@ -55,9 +80,17 @@ export default function MotorsPage() {
         description="Browse motor assets registered across your industrial facilities."
       />
 
+      <FilterToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search by motor, factory, or line..."
+      />
+
       <div className="list-summary">
         <span>{total} motors registered</span>
-        <span>Showing {motors.length} assets</span>
+        <span>
+          Showing {filteredMotors.length} of {motors.length} loaded assets
+        </span>
       </div>
 
       {motors.length === 0 ? (
@@ -65,9 +98,26 @@ export default function MotorsPage() {
           title="No motors registered"
           description="Motor assets will appear here once they are available through the API."
         />
+      ) : filteredMotors.length === 0 ? (
+        <div className="motor-filter-empty">
+          <Boxes size={24} />
+
+          <h3>No matching motors</h3>
+
+          <p>
+            Try another motor name, identifier, factory, or production line.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+          >
+            Clear search
+          </button>
+        </div>
       ) : (
         <div className="motor-grid">
-          {motors.map((motor) => (
+          {filteredMotors.map((motor) => (
             <Link
               key={`${motor.factory_id}:${motor.id}`}
               to={`/factories/${encodeURIComponent(motor.factory_id)}/motors/${encodeURIComponent(motor.id)}`}
@@ -79,6 +129,7 @@ export default function MotorsPage() {
 
               <div className="motor-card-content">
                 <h3>{motor.name}</h3>
+
                 <p>Motor ID · {motor.id}</p>
                 <p>Factory · {motor.factory_id}</p>
                 <p>Production line · {motor.line_id}</p>

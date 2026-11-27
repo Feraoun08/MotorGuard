@@ -26,14 +26,14 @@ def display_reading(reading: dict):
     print("\n" + "=" * 70)
     print("MOTORGARD - LOCAL TELEMETRY")
     print("=" * 70)
-
     print(serialize_telemetry(reading))
 
 
 def main():
-   
+
+    # ==========================================================
     # 1. INITIALIZE SIMULATOR
-   
+    # ==========================================================
 
     dataset_provider = DatasetProvider(random_seed=42)
 
@@ -45,9 +45,9 @@ def main():
         interval_seconds=2.0,
     )
 
-   
+    # ==========================================================
     # 2. CREATE MOTORS
-   
+    # ==========================================================
 
     motor_1 = VirtualMotor(
         config=MotorConfig(
@@ -82,25 +82,25 @@ def main():
         )
     )
 
-   
+    # ==========================================================
     # 3. REGISTER MOTORS
-   
+    # ==========================================================
 
     factory.register_motor(motor_1)
     factory.register_motor(motor_2)
     factory.register_motor(motor_3)
 
-   
+    # ==========================================================
     # 4. START MOTORS
-   
+    # ==========================================================
 
     factory.start_motor("MOTOR_001")
     factory.start_motor("MOTOR_002")
     factory.start_motor("MOTOR_003")
 
-   
+    # ==========================================================
     # 5. INITIALIZE MQTT
-   
+    # ==========================================================
 
     publisher = None
     mqtt_adapter = None
@@ -117,9 +117,10 @@ def main():
             mqtt_adapter = MQTTFactoryAdapter(publisher)
 
             logger.info("MQTT integration enabled.")
+
         else:
             logger.warning(
-                "MQTT unavailable. Simulator will run in local mode."
+                "MQTT unavailable. Running simulator in local mode."
             )
 
     except Exception:
@@ -129,50 +130,76 @@ def main():
 
         mqtt_available = False
 
-   
+    # ==========================================================
     # 6. FACTORY CALLBACK
-   
+    # ==========================================================
+
+    published_readings = 0
 
     def handle_reading(reading: dict):
+
+        nonlocal published_readings
+
         if mqtt_available and mqtt_adapter is not None:
+
             mqtt_adapter(reading)
+            published_readings += 1
+
         else:
+
             display_reading(reading)
 
-   
-    # 7. RUN SIMULATION
-   
+    # ==========================================================
+    # 7. RUN CONTINUOUS SIMULATION
+    # ==========================================================
 
     try:
-        logger.info("Starting MotorGuard factory simulation...")
+
+        logger.info("=" * 70)
+        logger.info("MOTORGUARD CONTINUOUS SIMULATION STARTED")
+        logger.info("Factory: FACTORY_01")
+        logger.info("Motors: 3")
+        logger.info("Telemetry interval: 2 seconds")
+        logger.info("MQTT: %s", "CONNECTED" if mqtt_available else "DISABLED")
+        logger.info("Press CTRL+C to stop.")
+        logger.info("=" * 70)
 
         factory.run(
-            max_cycles=5,
+            max_cycles=None,
             on_reading=handle_reading,
         )
 
     except KeyboardInterrupt:
+
         logger.info("Shutdown requested by user.")
 
+    except Exception:
+
+        logger.exception("Simulation terminated due to an unexpected error.")
+
     finally:
-        # Stop the simulator
+
+        # Stop the factory simulation.
         factory.stop()
 
-        # Stop MQTT cleanly if it was initialized
+        # Disconnect MQTT cleanly.
         if publisher is not None:
             publisher.disconnect()
 
-   
-    # 8. SUMMARY
-   
+        # ======================================================
+        # 8. SUMMARY
+        # ======================================================
 
-    if mqtt_adapter is not None:
-        logger.info(
-            "MQTT publication statistics: %s",
-            mqtt_adapter.get_statistics(),
-        )
+        if mqtt_adapter is not None:
 
-    logger.info("Factory simulation finished.")
+            logger.info(
+                "MQTT publication statistics: %s",
+                mqtt_adapter.get_statistics(),
+            )
+
+        logger.info("Total telemetry readings handled: %s", published_readings)
+        logger.info("Factory simulation stopped.")
+        logger.info("MotorGuard shutdown complete.")
 
 
 if __name__ == "__main__":
