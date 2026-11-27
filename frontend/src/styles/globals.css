@@ -1690,3 +1690,790 @@ a {
     padding: 18px;
   }
 }
+/* =========================================================
+   GLOBAL ERROR BOUNDARY
+========================================================= */
+
+.app-error-boundary {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--background);
+}
+
+.app-error-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 36px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04);
+}
+
+.app-error-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d97706;
+  background: rgba(217, 119, 6, 0.1);
+  border-radius: 18px;
+}
+
+.app-error-card h1 {
+  margin: 0;
+  font-size: 23px;
+  color: var(--text-primary);
+}
+
+.app-error-card p {
+  margin: 14px 0 24px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.app-error-reload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 18px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.app-error-reload:hover {
+  opacity: 0.88;
+}
+
+@media (max-width: 600px) {
+  .app-error-card {
+    padding: 24px;
+  }
+}
+
+/* ========================================
+   STAGE 03.3 - CHART REFINEMENTS
+======================================== */
+
+.chart-empty-state {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 24px;
+}
+
+.chart-empty-state svg {
+  color: var(--primary);
+  opacity: 0.65;
+}
+
+.chart-empty-state p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chart-empty-state span {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.chart-container {
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.chart-tooltip {
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.chart-tooltip-label {
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.chart-tooltip-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.chart-tooltip-unit {
+  margin-left: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.chart-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    overflow-x: auto;
+  }
+
+  .chart-empty-state {
+    min-height: 200px;
+  }
+}
+
+/* ========================================
+   STAGE 03.4 - FILTER TOOLBAR
+======================================== */
+
+.filter-toolbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.filter-search {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 44px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  transition: border-color 0.2s ease;
+}
+
+.filter-search:focus-within {
+  border-color: var(--primary);
+}
+
+.filter-search input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.filter-search input::placeholder {
+  color: var(--text-secondary);
+}
+
+.filter-search button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.filter-status {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-secondary);
+}
+
+.filter-status select {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.filter-status select option {
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.filter-reset {
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.filter-reset:hover {
+  color: var(--primary);
+}
+
+@media (max-width: 600px) {
+  .filter-toolbar {
+    align-items: stretch;
+  }
+
+  .filter-search {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .filter-status {
+    flex: 1;
+  }
+
+  .filter-status select {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   STAGE 03.4 - BREADCRUMBS
+======================================== */
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+  font-size: 12px;
+}
+
+.breadcrumb-home,
+.breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.breadcrumb-home,
+.breadcrumb-item a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb-home:hover,
+.breadcrumb-item a:hover {
+  color: var(--primary);
+}
+
+.breadcrumb-item > svg {
+  color: var(--text-secondary);
+  opacity: 0.55;
+}
+
+.breadcrumb-current {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .breadcrumbs {
+    gap: 5px;
+    font-size: 11px;
+  }
+
+  .breadcrumb-home,
+  .breadcrumb-item {
+    gap: 5px;
+  }
+}
+
+/* =========================================================
+   MOTORGUARD FRONTEND - STAGE 03.5
+   RESPONSIVE REFINEMENT & UI RELIABILITY
+========================================================= */
+
+/* ---------- Monitoring page ---------- */
+
+.motor-monitoring-page {
+  width: 100%;
+  min-width: 0;
+}
+
+.monitor-section {
+  width: 100%;
+  min-width: 0;
+}
+
+.monitor-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.monitor-sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.monitor-charts-grid,
+.monitor-charts-grid > * {
+  min-width: 0;
+}
+
+.monitor-motor-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+/* ---------- Chart layout ---------- */
+
+.monitor-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.telemetry-chart-card {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.telemetry-chart-container {
+  width: 100%;
+  min-width: 0;
+  height: 280px;
+}
+
+.telemetry-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.chart-unit {
+  flex-shrink: 0;
+}
+
+/* ---------- Empty chart ---------- */
+
+.chart-empty-state {
+  min-height: 260px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: 24px;
+  color: var(--text-secondary);
+}
+
+.chart-empty-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  background: rgba(46, 139, 87, 0.09);
+  border-radius: 14px;
+}
+
+.chart-empty-state p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chart-empty-state span {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ---------- Filters ---------- */
+
+.filter-toolbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.filter-search {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 44px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  transition: border-color 0.2s ease;
+}
+
+.filter-search:focus-within {
+  border-color: var(--primary);
+}
+
+.filter-search input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.filter-search input::placeholder {
+  color: var(--text-secondary);
+}
+
+.filter-clear-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.filter-status {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-secondary);
+}
+
+.filter-status select {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.filter-status select option {
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.filter-reset {
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.filter-reset:hover {
+  color: var(--primary);
+}
+
+/* ---------- Motor search empty state ---------- */
+
+.motor-filter-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 250px;
+  padding: 30px;
+  text-align: center;
+  border: 1px dashed var(--border-color);
+  border-radius: 16px;
+  color: var(--text-secondary);
+}
+
+.motor-filter-empty > svg {
+  color: var(--primary);
+}
+
+.motor-filter-empty h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 17px;
+}
+
+.motor-filter-empty p {
+  max-width: 380px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.motor-filter-empty button {
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.motor-filter-empty button:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ---------- Breadcrumbs ---------- */
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+  font-size: 12px;
+}
+
+.breadcrumb-home,
+.breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.breadcrumb-home,
+.breadcrumb-item a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb-home:hover,
+.breadcrumb-item a:hover {
+  color: var(--primary);
+}
+
+.breadcrumb-item > svg {
+  color: var(--text-secondary);
+  opacity: 0.55;
+}
+
+.breadcrumb-current {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ---------- Monitoring warnings ---------- */
+
+.monitoring-warning {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid rgba(217, 119, 6, 0.25);
+  border-radius: 12px;
+  background: rgba(217, 119, 6, 0.07);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---------- Tablet ---------- */
+
+@media (max-width: 1024px) {
+  .monitor-sensor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .monitor-charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .telemetry-chart-container {
+    height: 300px;
+  }
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 768px) {
+  .monitor-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .chart-section-heading {
+    width: 100%;
+  }
+
+  .range-selector {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .range-selector button {
+    flex: 1;
+    min-width: 65px;
+  }
+
+  .motor-monitor-identity {
+    gap: 14px;
+  }
+
+  .motor-monitor-badges {
+    flex-wrap: wrap;
+  }
+
+  .monitor-last-update {
+    flex-wrap: wrap;
+  }
+
+  .monitor-footer-actions {
+    display: flex;
+    width: 100%;
+  }
+
+  .monitor-refresh-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .telemetry-chart-container {
+    height: 260px;
+  }
+
+  .filter-toolbar {
+    align-items: stretch;
+  }
+
+  .filter-search {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .filter-status {
+    flex: 1;
+  }
+
+  .filter-status select {
+    width: 100%;
+  }
+}
+
+/* ---------- Small mobile ---------- */
+
+@media (max-width: 480px) {
+  .monitor-sensor-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .monitor-charts-grid {
+    gap: 14px;
+  }
+
+  .telemetry-chart-container {
+    height: 240px;
+  }
+
+  .telemetry-chart-card {
+    padding: 14px;
+  }
+
+  .chart-empty-state {
+    min-height: 210px;
+    padding: 18px;
+  }
+
+  .breadcrumbs {
+    gap: 5px;
+    font-size: 11px;
+  }
+
+  .breadcrumb-home,
+  .breadcrumb-item {
+    gap: 5px;
+  }
+
+  .monitor-motor-context {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
